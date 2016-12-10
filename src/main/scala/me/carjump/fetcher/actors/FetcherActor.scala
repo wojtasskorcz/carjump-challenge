@@ -3,13 +3,12 @@ package me.carjump.fetcher.actors
 import akka.actor.{Actor, ActorRef, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.HttpRequest
-import akka.stream.scaladsl.{Framing, Sink}
-import akka.util.ByteString
 import akka.pattern.pipe
 import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.{Framing, Sink}
+import akka.util.ByteString
 import me.carjump.fetcher.AppProps
-
-import scala.concurrent.duration._
+import me.carjump.fetcher.actors.CacheActor.UpdateCache
 
 class FetcherActor(cache: ActorRef) extends Actor {
   import FetcherActor._
@@ -20,11 +19,10 @@ class FetcherActor(cache: ActorRef) extends Actor {
   def receive = {
     case Fetch =>
       val response = Http().singleRequest(HttpRequest(uri = AppProps.fetchUrl))
-//      val response = responseStream.flatMap(_.entity.toStrict(5.seconds).map(_.data))
       val items = response.flatMap(_.entity.dataBytes.via(Framing.delimiter(
         ByteString("\n"), maximumFrameLength = Int.MaxValue, allowTruncation = true
       )).map(_.utf8String).runWith(Sink.seq))
-      items pipeTo cache
+      items.map(UpdateCache) pipeTo cache
   }
 
 }

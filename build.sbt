@@ -9,4 +9,4 @@ libraryDependencies ++= Seq(
   "org.specs2" %% "specs2" % "2.4.17" % "test"
 )
 
-scalacOptions ++= Seq("-unchecked", "-deprecation")
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-language:implicitConversions")
