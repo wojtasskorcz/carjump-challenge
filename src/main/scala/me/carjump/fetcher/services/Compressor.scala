@@ -6,9 +6,30 @@ sealed trait Compressed[+A]
 case class Single[A](element: A) extends Compressed[A]
 case class Repeat[A](count: Int, element: A) extends Compressed[A]
 
+/**
+  * Interface for compressing and decompressing sequences of items.
+  */
 trait Compressor {
+  /**
+    * Compresses a given sequence
+    * @tparam A type of elements in the sequence
+    * @return function taking a sequence and returning a corresponding compressed sequence
+    */
   def compress[A]: Seq[A] => Seq[Compressed[A]]
+
+  /**
+    * Decompresses a given compressed sequence
+    * @tparam A type of elements in the original sequence
+    * @return function taking a compressed sequence and returning a corresponding decompressed sequence
+    */
   def decompress[A]: Seq[Compressed[A]] => Seq[A]
+
+  /**
+    * Retrieves an element from a given compressed sequence by its index in the original sequence
+    * @tparam A type of elements in the original sequence
+    * @return function taking a compressed sequence and an index of an element corresponding to the original sequence
+    *         and returning the element under the index or None if it doesn't exist
+    */
   def getAtIndex[A]: (Seq[Compressed[A]], Int) => Option[A]
 }
 
