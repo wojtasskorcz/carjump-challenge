@@ -12,4 +12,6 @@ object AppProps {
 
   val fetchInterval: FiniteDuration = config.getDuration("fetch.interval")
   val fetchUrl = config.getString("fetch.url")
+  val httpHost = config.getString("http.host")
+  val httpPort = config.getInt("http.port")
 }
