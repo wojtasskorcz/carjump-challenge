@@ -11,6 +11,8 @@ import me.carjump.fetcher.AppProps
 import me.carjump.fetcher.actors.CacheActor.UpdateCache
 import me.carjump.fetcher.services.{LogLevels, Logger}
 
+import scala.util.{Failure, Success}
+
 class FetcherActor(cache: ActorRef) extends Actor {
   import FetcherActor._
   implicit val system = context.system
@@ -20,11 +22,10 @@ class FetcherActor(cache: ActorRef) extends Actor {
   def receive = {
     case Fetch =>
       val response = Http().singleRequest(HttpRequest(uri = AppProps.fetchUrl))
-      response.failed.foreach { t =>
-        Logger.log(LogLevels.Error, s"Could not fetch ${AppProps.fetchUrl}. Exception: ${t.getMessage}")
-      }
-      response.foreach { rsp =>
-        rsp.status match {
+      response.onComplete {
+        case Failure(t) =>
+          Logger.log(LogLevels.Error, s"Could not fetch ${AppProps.fetchUrl}. Exception: ${t.getMessage}")
+        case Success(rsp) => rsp.status match {
           case StatusCodes.OK =>
             val items = rsp.entity.dataBytes.via(Framing.delimiter(
               ByteString("\n"), maximumFrameLength = Int.MaxValue, allowTruncation = true
