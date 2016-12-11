@@ -1,8 +1,7 @@
-package me.carjump.fetcher
+package me.carjump.fetcher.actors
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import me.carjump.fetcher.actors.CacheActor
 import me.carjump.fetcher.actors.CacheActor.{GetElement, UpdateCache}
 import me.carjump.fetcher.services.{Compressed, Compressor, Repeat}
 import org.specs2.mock.Mockito
@@ -15,7 +14,7 @@ class CacheActorSpec extends TestKit(ActorSystem()) with ImplicitSender with Spe
   with Mockito {
 
   "CacheActor" should {
-    "properly cache and retrieve elements" in {
+    "cache and retrieve elements" in {
       val compressor = mock[Compressor]
       val shortSeq = Seq("R", "R", "S", "S")
       val compressedShortSeq = Seq(Repeat(2, "R"), Repeat(2, "S"))
